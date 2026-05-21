@@ -9,8 +9,9 @@
 		static decimal[] Balances = { 15000m, 8500m, 32000m };
 		static string[] History = new string[256];
 
-		// Переменные метода GetCash
-		static decimal CashSum;
+		// Переменные методов
+		static decimal CashSum;		// GetCash
+		static decimal TopUpSum;	// TopUP
 
 		static void Main(string[] args)
 		{
@@ -49,72 +50,37 @@
 					continue;
 				}
 				if (ActionChoice < 0 || ActionChoice > 4) ErrorCheck();
-
+				
 				Console.Clear();
-				switch (ActionChoice)
-				{
-					case 1:
-						//Console.WriteLine("InDev");
-						//Console.ReadKey();
-						GetCash();
-						break;
-					case 2:
-						Console.WriteLine("InDev");
-						Console.ReadKey();
-						//TopUp(AccountChoice, Balances, History);
-						break;
-					case 3:
-						Console.WriteLine("InDev");
-						Console.ReadKey();
-						//OperationHistory(History);
-						break;
-					case 4:
-						Console.WriteLine("InDev");
-						Console.ReadKey();
-						//TransferBetweenAccouts(AccountNames, AccountChoice, Balances, History);
-						break;
-					case 0:
-						//Тут сделать подтверждение выхода из программы с возможностью отменить действие
-						Environment.Exit(0);
-						break;
-				}
-
-				//goto 
+				if (ActionChoice == 1) GetCash();
+				else if (ActionChoice == 2) TopUp();
+				else if (ActionChoice == 3) Console.WriteLine("InDev"); // OperationHistory();
+				else if (ActionChoice == 4) Console.WriteLine("InDev"); // TransferBetweenAccouts();
+				else if (ActionChoice == 0) return;
+				Console.ReadKey();
 			}
-
-
-
-
 		}
-
 
 		static void ErrorCheck()
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.Write("Ошибка! ");
 			Console.ForegroundColor = ConsoleColor.White;
-
-
-
-
+			
 			// Метод Main
 			if (ActionChoice < 0 || ActionChoice > 4) Console.WriteLine("Неверный ввод.");
 
 			// Метод GetCash
 			if (CashSum < 0) Console.WriteLine("Вы не можете снять отрицательную сумму.");
-			if (CashSum % 100 != 0) Console.WriteLine("Сумма должна быть кратна 100.");
+			if ((CashSum % 100 != 0) && (CashSum > 0)) Console.WriteLine("Сумма должна быть кратна 100.");
 			if (CashSum > Balances[AccountChoice]) Console.WriteLine("Недостаточно средств.");
-			
 
+            // Метод TopUp
+            if (TopUpSum < 0) Console.WriteLine("Вы не можете пополнить счет на сумму меньше чем 0 рублей.");
 
-
-
-
-
-			Console.WriteLine();
+            Console.WriteLine();
 			Console.Write("Нажмите Enter, чтобы начать сначала...");
 			Console.ReadKey();
-			//Console.Clear();
 		}
 
 		static void GetCash()
@@ -124,28 +90,25 @@
 			Console.WriteLine();
 			Console.Write("Введите сумму для снятия (сумма должна быть кратна 100): ");
 
-            // Проверка валидности значения
-            if (!decimal.TryParse(Console.ReadLine(), out CashSum))
-            {
-                CashSum = -1;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("Ошибка! ");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Неверный ввод.");
-                Console.Write("Нажмите Enter, чтобы начать сначала...");
-                Console.ReadKey();
-                return;
-            }
-            if (CashSum < 0) ErrorCheck();
-			if (CashSum % 100 != 0)
+			// Проверка валидности значения
+			if (!decimal.TryParse(Console.ReadLine(), out CashSum))
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Write("Ошибка! ");
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.WriteLine("Неверный ввод.");
+				Console.Write("Нажмите Enter, чтобы начать сначала...");
+				Console.ReadKey();
+				return;
+			}
+			else if ((CashSum < 0) || (CashSum % 100 != 0) || (CashSum > Balances[AccountChoice]))
 			{
 				ErrorCheck();
-				//return;
+				return;
 			}
-            if (CashSum > Balances[AccountChoice]) ErrorCheck();
 
-            // Успешное снятие наличных
-            Balances[AccountChoice] -= CashSum;
+			// Успешное снятие наличных
+			Balances[AccountChoice] -= CashSum;
 			Console.Clear();
 			Console.WriteLine("===== СНЯТИЕ НАЛИЧНЫХ =====");
 			Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
@@ -167,8 +130,59 @@
 					break;
 				}
 			}
-			return;
 		}
+
+		static void TopUp()
+		{
+			Console.WriteLine("===== ПОПОЛНЕНИЕ СЧЕТА =====");
+			Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
+			Console.WriteLine();
+			Console.Write("Введите сумму для пополнения: ");
+
+            // Проверка валидности значения
+            if (!decimal.TryParse(Console.ReadLine(), out TopUpSum))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Ошибка! ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Неверный ввод.");
+                Console.Write("Нажмите Enter, чтобы начать сначала...");
+                Console.ReadKey();
+                return;
+            }
+			if (TopUpSum < 0)
+			{
+                ErrorCheck();
+                return;
+            }
+
+			// Успешное пополнение счета
+			Balances[AccountChoice] += TopUpSum;
+			Console.Clear();
+			Console.WriteLine("===== ПОПОЛНЕНИЕ СЧЕТА =====");
+			Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
+			Console.WriteLine();
+			Console.WriteLine($"Введите сумму для пополнения: {TopUpSum}");
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.WriteLine($"Вы успешно пополнили счет на {TopUpSum} рублей.");
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine();
+			Console.Write("Нажмите Enter для продолжения...");
+			Console.ReadKey();
+
+			// Запись операции в историю
+			for (int i = 0; i < 256; i++)
+			{
+				if (History[i] == null)
+				{
+					History[i] = $"[{DateTime.Now.ToLongTimeString()}] Пополнение +{TopUpSum},00 Р. (остаток: {Balances[AccountChoice]})";
+					break;
+				}
+			}
+		}
+
+
+
 
 
 	}
