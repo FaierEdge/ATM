@@ -1,7 +1,6 @@
 ﻿// ===== TASK LIST =====
-// 4. Сделать подтвержение выхода из программы с возможностью отменить действие
-// 6. Сделать админ панель, где можно будет удалить все операции, изменить баланс и т.д. (по желанию) - пароль для входа 1487, Очистка всех операций, изменение баланса
-// 7. Добавить переменную окружения Account
+// 1. Сделать подтвержение выхода из программы с возможностью отменить действие
+// 2. Сделать админ панель, где можно будет удалить все операции, изменить баланс и т.д. (по желанию) - пароль для входа 1487, Очистка всех операций, изменение баланса
 
 namespace Банкомат
 {
@@ -48,33 +47,10 @@ namespace Банкомат
 				if (!int.TryParse(Console.ReadLine(), out ActionChoice))
 				{
 					ActionChoice = -1;
-
-
-
-                    ErrorCheck();
-                    //Console.ForegroundColor = ConsoleColor.Red;
-                    //Console.Write("Ошибка! ");
-                    //Console.ForegroundColor = ConsoleColor.White;
-                    //Console.WriteLine("Неверный ввод.");
-                    //Console.WriteLine();
-                    //Console.Write("Нажмите Enter, чтобы начать сначала...");
-                    //Console.ReadKey();
-
-
-
-                    continue;
+					ErrorShow("Неверный ввод.");
+					continue;
 				}
-				if (ActionChoice < 0 || ActionChoice > 4)
-				{
-                    //Console.ForegroundColor = ConsoleColor.Red;
-                    //Console.Write("Ошибка! ");
-                    //Console.ForegroundColor = ConsoleColor.White;
-                    //Console.WriteLine("Неверный ввод.");
-                    //Console.WriteLine();
-                    //Console.Write("Нажмите Enter, чтобы начать сначала...");
-                    //Console.ReadKey();
-                    ErrorCheck();
-                }
+				if (ActionChoice < 0 || ActionChoice > 4) ErrorShow("Неверный ввод.");
 				
 				Console.Clear();
 				if (ActionChoice == 1) GetCash();
@@ -84,33 +60,14 @@ namespace Банкомат
 				else if (ActionChoice == 0) return;
 			}
 		}
-
-		static void ErrorCheck()
+		
+		static void ErrorShow(string ErrorMessage)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.Write("Ошибка! ");
 			Console.ForegroundColor = ConsoleColor.White;
-
-            // Метод Main
-            if (!int.TryParse(Console.ReadLine(), out ActionChoice)) Console.WriteLine("Неверный ввод.");
-            else if (ActionChoice < 0 || ActionChoice > 4) Console.WriteLine("Неверный ввод.");
-
-            // Метод GetCash
-            else if (!decimal.TryParse(Console.ReadLine(), out CashSum)) Console.WriteLine("Неверный ввод.");
-            else if (CashSum < 0) Console.WriteLine("Вы не можете снять отрицательную сумму.");
-			else if ((CashSum % 100 != 0) && (CashSum > 0)) Console.WriteLine("Сумма должна быть кратна 100.");
-			else if (CashSum > Balances[AccountChoice]) Console.WriteLine("Недостаточно средств.");
-
-			// Метод TopUp
-			else if (TopUpSum < 0) Console.WriteLine("Вы не можете пополнить счет на сумму меньше чем 0 рублей.");
-
-			// Метод TransferBetweenAccouts
-			else if (TransferAccount == AccountChoice) Console.WriteLine("Вы не можете перевести средства на тот же счет.");
-			else if (TransferAccount < 0 || TransferAccount > 2) Console.WriteLine("Такого счета не существует.");
-            else if (TransferSum < 0) Console.WriteLine("Вы не можете перевести отрицательную сумму.");
-            else if (TransferSum > Balances[AccountChoice]) Console.WriteLine("Вы не можете перевести больше чем у вас есть.");
-            
-            Console.WriteLine();
+			Console.WriteLine(ErrorMessage);
+			Console.WriteLine();
 			Console.Write("Нажмите Enter, чтобы начать сначала...");
 			Console.ReadKey();
 		}
@@ -123,11 +80,25 @@ namespace Банкомат
 			Console.Write("Введите сумму для снятия (сумма должна быть кратна 100): ");
 
 			// Проверка валидности значения
-			if ((!decimal.TryParse(Console.ReadLine(), out CashSum)) || (CashSum < 0) || (CashSum % 100 != 0) || (CashSum > Balances[AccountChoice]))
+			if (!decimal.TryParse(Console.ReadLine(), out CashSum))
 			{
-				ErrorCheck();
+				ErrorShow("Неверный ввод.");
 				return;
 			}
+			if (CashSum < 0)
+			{
+				ErrorShow("Вы не можете снять отрицательную сумму.");
+			}
+			if (CashSum % 100 != 0)
+			{
+				ErrorShow("Сумма должна быть кратна 100.");
+				return;
+			}
+			if (CashSum > Balances[AccountChoice])
+			{
+                ErrorShow("Недостаточно средств.");
+				return;
+            }
 
 			// Успешное снятие наличных
 			Balances[AccountChoice] -= CashSum;
@@ -164,17 +135,12 @@ namespace Банкомат
 			// Проверка валидности значения
 			if (!decimal.TryParse(Console.ReadLine(), out TopUpSum))
 			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Write("Ошибка! ");
-				Console.ForegroundColor = ConsoleColor.White;
-				Console.WriteLine("Неверный ввод.");
-				Console.Write("Нажмите Enter, чтобы начать сначала...");
-				Console.ReadKey();
-				return;
+                ErrorShow("Неверный ввод.");
+                return;
 			}
 			if (TopUpSum < 0)
 			{
-				ErrorCheck();
+				ErrorShow("Вы не можете пополнить счет на сумму меньше чем 0 рублей.");
 				return;
 			}
 
@@ -242,30 +208,43 @@ namespace Банкомат
 				if (i != AccountChoice) Console.WriteLine($"{i + 1}. {AccountNames[i]}");
 			}
 			Console.WriteLine();
-			Console.Write("Ваш выбор: ");
 
-			// Проверка валидности значений
-			if (!int.TryParse(Console.ReadLine(), out TransferAccount) || (!decimal.TryParse(Console.ReadLine(), out TransferSum)))
+            // Ввод значений и проверка их валидности
+            Console.Write("Ваш выбор: ");
+            if (!int.TryParse(Console.ReadLine(), out TransferAccount))
 			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Write("Ошибка! ");
-				Console.ForegroundColor = ConsoleColor.White;
-				Console.WriteLine("Неверный ввод.");
-				Console.Write("Нажмите Enter, чтобы начать сначала...");
-				Console.ReadKey();
+				ErrorShow("Неверный ввод.");
 				return;
 			}
-			if ((TransferAccount == AccountChoice) || (TransferAccount < 0) || (TransferAccount > 2) || (TransferSum < 0) || (TransferSum > Balances[AccountChoice]))
+			TransferAccount--;
+            if (TransferAccount == AccountChoice)
 			{
-                ErrorCheck();
+				ErrorShow("Вы не можете перевести средства на тот же счет.");
+				return;
+			}
+            if (TransferAccount < 0 || TransferAccount > 2)
+            {
+                ErrorShow("Такого счета не существует.");
                 return;
             }
 			Console.Write("Введите сумму для перевода: ");
-
-			
-
-			// Успешный перевод между счетами
-			Balances[AccountChoice] -= TransferSum;
+            if (!decimal.TryParse(Console.ReadLine(), out TransferSum))
+            {
+                ErrorShow("Неверный ввод.");
+                return;
+            }
+            if (TransferSum < 0)
+			{
+				ErrorShow("Вы не можете перевести отрицательную сумму.");
+				return;
+			}
+            if (TransferSum > Balances[AccountChoice])
+            {
+                ErrorShow("Недостаточно средств.");
+                return;
+            }
+            // Успешный перевод между счетами
+            Balances[AccountChoice] -= TransferSum;
 			Balances[TransferAccount] += TransferSum;
 			Console.Clear();
 			Console.WriteLine("===== ПЕРЕВОД МЕЖДУ СЧЕТАМИ =====");
