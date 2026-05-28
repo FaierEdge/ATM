@@ -1,8 +1,4 @@
-﻿// ===== TASK LIST =====
-// 1. Сделать подтвержение выхода из программы с возможностью отменить действие
-// 2. Сделать админ панель, где можно будет удалить все операции, изменить баланс и т.д. (по желанию) - пароль для входа 1487, Очистка всех операций, изменение баланса
-
-namespace Банкомат
+﻿namespace Банкомат
 {
 	internal class Program
 	{
@@ -14,6 +10,7 @@ namespace Банкомат
 		static string[] History = new string[256];
 
 		// Переменные методов
+		static int ExitConfirm = -1;			// Main
 		static decimal CashSum;					// GetCash
 		static decimal TopUpSum;				// TopUP
 		static int TransferAccount;				// TransferBetweenAccouts
@@ -28,11 +25,11 @@ namespace Банкомат
 			Console.ForegroundColor = ConsoleColor.White;
 
 			// Основной цикл программы
-			while (ActionChoice != 0)
+			while (ActionChoice != 0 && ExitConfirm != 1)
 			{
 				// Начало программы
 				Console.Clear();
-				Console.WriteLine($"===== Здавствуйте, {AccountNames[AccountChoice]} ===== ");
+				Console.WriteLine($"===== Здавствуйте, {AccountNames[AccountChoice]} =====");
 				Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
 				Console.WriteLine();
 				Console.WriteLine("Выберите действие:");
@@ -58,7 +55,23 @@ namespace Банкомат
 				else if (ActionChoice == 2) TopUp();
 				else if (ActionChoice == 3) TransferBetweenAccouts();
 				else if (ActionChoice == 4) OperationHistory();
-				else if (ActionChoice == 0) return;
+				else if (ActionChoice == 0)
+				{
+					ExitConfirm = -1;
+					Console.WriteLine("Вы уверены, что хотите выйти?");
+					Console.WriteLine("1 - да");
+					Console.WriteLine("0 - нет");
+					Console.WriteLine();
+					Console.WriteLine("====================");
+					Console.Write("Ваш выбор: ");
+					if (!int.TryParse(Console.ReadLine(), out ExitConfirm) || ExitConfirm < 0 || ExitConfirm > 1) ErrorShow("Неверный ввод.");
+					else if (ExitConfirm == 1) return;
+					else
+					{
+						ActionChoice = -1;
+						ExitConfirm = -1;
+					}
+				}
 				else if (ActionChoice == 1488)
 				{
 					if (AdminPanelCanShow) AdminPanel();
@@ -289,7 +302,7 @@ namespace Банкомат
 		{
 			AdminPanelDisabled = true;
 			string AdminPanelLabel = "===== АДМИН-ПАНЕЛЬ =====";
-			ConsoleColor[] pattern = { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Blue };
+			ConsoleColor[] Pattern = { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Blue };
 			int PasswordAttempts = 3;
 			int AdminChoice = -1;
 
@@ -297,15 +310,21 @@ namespace Банкомат
 			{
 				for (int i = 0; i < AdminPanelLabel.Length; i++)
 				{
-					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.ForegroundColor = Pattern[i % Pattern.Length];
 					Console.Write(AdminPanelLabel[i]);
 				}
 				Console.WriteLine();
 				Console.WriteLine();
+				Console.WriteLine("Введите 0 для выхода.");
 				Console.Write("Введите пароль для входа: ");
 				string Password = Console.ReadLine();
 				Console.WriteLine();
 				if (Password == "хуй") AdminPanelDisabled = false;
+				else if (Password == "0")
+				{
+					Console.ForegroundColor = ConsoleColor.White;
+					return;
+				}
 				else
 				{
 					PasswordAttempts--;
@@ -330,7 +349,7 @@ namespace Банкомат
 				Console.Clear();
 				for (int i = 0; i < AdminPanelLabel.Length; i++)
 				{
-					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.ForegroundColor = Pattern[i % Pattern.Length];
 					Console.Write(AdminPanelLabel[i]);
 				}
 				Console.WriteLine();
@@ -346,7 +365,7 @@ namespace Банкомат
 				Console.Clear();
 				for (int i = 0; i < AdminPanelLabel.Length; i++)
 				{
-					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.ForegroundColor = Pattern[i % Pattern.Length];
 					Console.Write(AdminPanelLabel[i]);
 				}
 				Console.WriteLine();
@@ -401,10 +420,12 @@ namespace Банкомат
 						if (i == 0) Console.WriteLine($"{i + 1}. {AccountNames[i]} \t\t {Balances[i]}");
 						else Console.WriteLine($"{i + 1}. {AccountNames[i]} \t {Balances[i]}");
 					}
+					Console.WriteLine("0. Выход");
 					Console.WriteLine();
 					Console.WriteLine("====================");
 					Console.Write("Ваш выбор: ");
 					int.TryParse(Console.ReadLine(), out BalanceChangeAccount);
+					if (BalanceChangeAccount == 0) continue;
 					Console.WriteLine();
 					BalanceChangeAccount--;
 					Console.Write($"Введите новый баланс для аккаута \"{AccountNames[BalanceChangeAccount]}\": ");
