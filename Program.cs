@@ -1,7 +1,6 @@
 ﻿// ===== TASK LIST =====
 // 1. Сделать подтвержение выхода из программы с возможностью отменить действие
 // 2. Сделать админ панель, где можно будет удалить все операции, изменить баланс и т.д. (по желанию) - пароль для входа 1487, Очистка всех операций, изменение баланса
-// 3. Сделать логи в виде таблицы
 
 namespace Банкомат
 {
@@ -9,16 +8,18 @@ namespace Банкомат
 	{
 		// Глобальные переменные
 		static int ActionChoice = -1;
-		static int AccountChoice = new Random().Next(0, 2);
+		static int AccountChoice = new Random().Next(0, 3);
 		static string[] AccountNames = { "Иван Петров", "Мария Сидорова", "Алексей Козлов" };
 		static decimal[] Balances = { 15000m, 8500m, 32000m };
 		static string[] History = new string[256];
 
 		// Переменные методов
-		static decimal CashSum;		// GetCash
-		static decimal TopUpSum;	// TopUP
-		static int TransferAccount; // TransferBetweenAccouts
-		static decimal TransferSum; // TransferBetweenAccouts
+		static decimal CashSum;					// GetCash
+		static decimal TopUpSum;				// TopUP
+		static int TransferAccount;				// TransferBetweenAccouts
+		static decimal TransferSum;				// TransferBetweenAccouts
+		static bool AdminPanelDisabled;			// AdminPanel
+		static bool AdminPanelCanShow = true;	// AdminPanel
 
 		static void Main(string[] args)
 		{
@@ -37,8 +38,8 @@ namespace Банкомат
 				Console.WriteLine("Выберите действие:");
 				Console.WriteLine("1. Снять наличные");
 				Console.WriteLine("2. Пополнить счет");
-				Console.WriteLine("3. История операций");
-				Console.WriteLine("4. Перевод между счетами");
+				Console.WriteLine("3. Перевод между счетами");
+				Console.WriteLine("4. История операций");
 				Console.WriteLine("0. Выход");
 				Console.WriteLine();
 				Console.WriteLine("====================");
@@ -51,17 +52,21 @@ namespace Банкомат
 					ErrorShow("Неверный ввод.");
 					continue;
 				}
-				if (ActionChoice < 0 || ActionChoice > 4) ErrorShow("Неверный ввод.");
-				
+				if ((ActionChoice < 0 || ActionChoice > 4) && ActionChoice != 1488) ErrorShow("Неверный ввод.");
 				Console.Clear();
 				if (ActionChoice == 1) GetCash();
 				else if (ActionChoice == 2) TopUp();
-				else if (ActionChoice == 3) OperationHistory();
-				else if (ActionChoice == 4) TransferBetweenAccouts();
+				else if (ActionChoice == 3) TransferBetweenAccouts();
+				else if (ActionChoice == 4) OperationHistory();
 				else if (ActionChoice == 0) return;
+				else if (ActionChoice == 1488)
+				{
+					if (AdminPanelCanShow) AdminPanel();
+					else ErrorShow("Неверный ввод.");
+				}
 			}
 		}
-		
+
 		static void ErrorShow(string ErrorMessage)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
@@ -89,6 +94,7 @@ namespace Банкомат
 			if (CashSum < 0)
 			{
 				ErrorShow("Вы не можете снять отрицательную сумму.");
+				return;
 			}
 			if (CashSum % 100 != 0)
 			{
@@ -97,9 +103,9 @@ namespace Банкомат
 			}
 			if (CashSum > Balances[AccountChoice])
 			{
-                ErrorShow("Недостаточно средств.");
+				ErrorShow("Недостаточно средств.");
 				return;
-            }
+			}
 
 			// Успешное снятие наличных
 			Balances[AccountChoice] -= CashSum;
@@ -136,8 +142,8 @@ namespace Банкомат
 			// Проверка валидности значения
 			if (!decimal.TryParse(Console.ReadLine(), out TopUpSum))
 			{
-                ErrorShow("Неверный ввод.");
-                return;
+				ErrorShow("Неверный ввод.");
+				return;
 			}
 			if (TopUpSum < 0)
 			{
@@ -169,33 +175,7 @@ namespace Банкомат
 				}
 			}
 		}
-
-		static void OperationHistory()
-		{
-			Console.WriteLine("===== ИСТОРИЯ ОПЕРАЦИЙ =====");
-			if (History[0] == null)
-			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("Операций пока нет.");
-				Console.ForegroundColor = ConsoleColor.White;
-				Console.WriteLine();
-				Console.Write("Нажмите Enter для продолжения...");
-				Console.ReadKey();
-				return;
-			}
-			else
-			{
-				for (int i = 0; i < 256; i++)
-				{
-					if (History[i] == null) break;
-					Console.WriteLine($"{i + 1}. {History[i]}");
-				}
-			}
-			Console.WriteLine();
-			Console.Write("Нажмите Enter для продолжения...");
-			Console.ReadKey();
-		}
-
+		
 		static void TransferBetweenAccouts()
 		{
 			Console.WriteLine("===== ПЕРЕВОД МЕЖДУ СЧЕТАМИ =====");
@@ -208,44 +188,46 @@ namespace Банкомат
 			{
 				if (i != AccountChoice) Console.WriteLine($"{i + 1}. {AccountNames[i]}");
 			}
+			Console.WriteLine("0. Выход");
 			Console.WriteLine();
 
-            // Ввод значений и проверка их валидности
-            Console.Write("Ваш выбор: ");
-            if (!int.TryParse(Console.ReadLine(), out TransferAccount))
+			// Ввод значений и проверка их валидности
+			Console.Write("Ваш выбор: ");
+			if (!int.TryParse(Console.ReadLine(), out TransferAccount))
 			{
 				ErrorShow("Неверный ввод.");
 				return;
 			}
 			TransferAccount--;
-            if (TransferAccount == AccountChoice)
+			if (TransferAccount == AccountChoice)
 			{
 				ErrorShow("Вы не можете перевести средства на тот же счет.");
 				return;
 			}
-            if (TransferAccount < 0 || TransferAccount > 2)
-            {
-                ErrorShow("Такого счета не существует.");
-                return;
-            }
+			if ((TransferAccount < -1 || TransferAccount > 2))
+			{
+				ErrorShow("Такого счета не существует.");
+				return;
+			}
+			if (TransferAccount == -1) return;
 			Console.Write("Введите сумму для перевода: ");
-            if (!decimal.TryParse(Console.ReadLine(), out TransferSum))
-            {
-                ErrorShow("Неверный ввод.");
-                return;
-            }
-            if (TransferSum < 0)
+			if (!decimal.TryParse(Console.ReadLine(), out TransferSum))
+			{
+				ErrorShow("Неверный ввод.");
+				return;
+			}
+			if (TransferSum < 0)
 			{
 				ErrorShow("Вы не можете перевести отрицательную сумму.");
 				return;
 			}
-            if (TransferSum > Balances[AccountChoice])
-            {
-                ErrorShow("Недостаточно средств.");
-                return;
-            }
-            // Успешный перевод между счетами
-            Balances[AccountChoice] -= TransferSum;
+			if (TransferSum > Balances[AccountChoice])
+			{
+				ErrorShow("Недостаточно средств.");
+				return;
+			}
+			// Успешный перевод между счетами
+			Balances[AccountChoice] -= TransferSum;
 			Balances[TransferAccount] += TransferSum;
 			Console.Clear();
 			Console.WriteLine("===== ПЕРЕВОД МЕЖДУ СЧЕТАМИ =====");
@@ -275,6 +257,168 @@ namespace Банкомат
 					break;
 				}
 			}
+		}
+		
+		static void OperationHistory()
+		{
+			Console.WriteLine("===== ИСТОРИЯ ОПЕРАЦИЙ =====");
+			if (History[0] == null)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("Операций пока нет.");
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.WriteLine();
+				Console.Write("Нажмите Enter для продолжения...");
+				Console.ReadKey();
+				return;
+			}
+			else
+			{
+				for (int i = 0; i < 256; i++)
+				{
+					if (History[i] == null) break;
+					Console.WriteLine($"{i + 1}. {History[i]}");
+				}
+			}
+			Console.WriteLine();
+			Console.Write("Нажмите Enter для продолжения...");
+			Console.ReadKey();
+		}
+
+		static void AdminPanel()
+		{
+			AdminPanelDisabled = true;
+			string AdminPanelLabel = "===== АДМИН-ПАНЕЛЬ =====";
+			ConsoleColor[] pattern = { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Blue };
+			int PasswordAttempts = 3;
+			int AdminChoice = -1;
+
+			while (AdminPanelDisabled)
+			{
+				for (int i = 0; i < AdminPanelLabel.Length; i++)
+				{
+					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.Write(AdminPanelLabel[i]);
+				}
+				Console.WriteLine();
+				Console.WriteLine();
+				Console.Write("Введите пароль для входа: ");
+				string Password = Console.ReadLine();
+				Console.WriteLine();
+				if (Password == "хуй") AdminPanelDisabled = false;
+				else
+				{
+					PasswordAttempts--;
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Пароль неправильный!");
+					Console.ForegroundColor = ConsoleColor.Cyan;
+					if (PasswordAttempts == 2) Console.Write("У вас осталось 2 попытки.");
+					else if (PasswordAttempts == 1) Console.Write("У вас осталось 1 попытка.");
+					else if (PasswordAttempts == 0)
+					{
+						AdminPanelCanShow = false;
+						Console.ForegroundColor = ConsoleColor.White;
+						return;
+					}
+					Console.ReadKey();
+					Console.Clear();
+				}
+			}
+
+			while (AdminChoice != 0)
+			{
+				Console.Clear();
+				for (int i = 0; i < AdminPanelLabel.Length; i++)
+				{
+					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.Write(AdminPanelLabel[i]);
+				}
+				Console.WriteLine();
+				Console.WriteLine();
+				Console.WriteLine("Выберите действие:");
+				Console.WriteLine("1. Очистка истории операций");
+				Console.WriteLine("2. Изменение баланса");
+				Console.WriteLine("0. Выход");
+				Console.WriteLine();
+				Console.WriteLine("====================");
+				Console.Write("Ваш выбор: ");
+				int.TryParse(Console.ReadLine(), out AdminChoice);
+				Console.Clear();
+				for (int i = 0; i < AdminPanelLabel.Length; i++)
+				{
+					Console.ForegroundColor = pattern[i % pattern.Length];
+					Console.Write(AdminPanelLabel[i]);
+				}
+				Console.WriteLine();
+				Console.WriteLine();
+
+				// Очистка истории операций
+				if (AdminChoice == 1)
+				{
+					int OperationHistory = -1;
+					Console.WriteLine("Очистка истории операций:");
+					Console.WriteLine();
+					Console.WriteLine("Вы уверены, что хотите очистить историю операций?");
+					Console.WriteLine("1 - да");
+					Console.WriteLine("0 - нет");
+					Console.WriteLine();
+					Console.WriteLine("====================");
+					Console.Write("Ваш выбор: ");
+					int.TryParse(Console.ReadLine(), out OperationHistory);
+					if (OperationHistory == 0) continue;
+					else
+					{
+						if (History[0] == null)
+						{
+							Console.ForegroundColor = ConsoleColor.Red;
+							Console.Write("Ошибка! ");
+							Console.ForegroundColor = ConsoleColor.White;
+							Console.Write("Операций нет.");
+							Console.ForegroundColor = ConsoleColor.Cyan;
+						}
+						else
+						{
+							for (int i = 0; i < 256; i++)
+							{
+								if (History[i] != null) History[i] = null;
+								else break;
+							}
+						}	
+					}
+					Console.ReadKey();
+				}
+
+				// Изменение баланса
+				if (AdminChoice == 2)
+				{
+					int BalanceChangeAccount, NewBalance;
+
+					Console.WriteLine("Изменение баланса:");
+					Console.WriteLine();
+					Console.WriteLine("Выберите счет для изменения баланса:");
+					for (int i = 0; i < 3; i++)
+					{
+						if (i == 0) Console.WriteLine($"{i + 1}. {AccountNames[i]} \t\t {Balances[i]}");
+						else Console.WriteLine($"{i + 1}. {AccountNames[i]} \t {Balances[i]}");
+					}
+					Console.WriteLine();
+					Console.WriteLine("====================");
+					Console.Write("Ваш выбор: ");
+					int.TryParse(Console.ReadLine(), out BalanceChangeAccount);
+					Console.WriteLine();
+					BalanceChangeAccount--;
+					Console.Write($"Введите новый баланс для аккаута \"{AccountNames[BalanceChangeAccount]}\": ");
+					int.TryParse(Console.ReadLine(), out NewBalance);
+					Console.WriteLine();
+					Balances[BalanceChangeAccount] = NewBalance;
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.Write($"Вы успешно установили баланс в {NewBalance} для аккаута \"{AccountNames[BalanceChangeAccount]}\".");
+					Console.ForegroundColor = ConsoleColor.Cyan;
+					Console.ReadKey();
+				}
+			}
+			Console.ForegroundColor = ConsoleColor.White;
+			return;
 		}
 	}
 }
