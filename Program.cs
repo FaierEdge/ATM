@@ -1,28 +1,25 @@
-﻿namespace Банкомат
+﻿using System.Reflection.Emit;
+using System.Text;
+using SHA256 = System.Security.Cryptography.SHA256;
+
+namespace Банкомат
 {
 	internal class Program
 	{
 		// Глобальные переменные
-		static int ActionChoice = -1;
 		static int AccountChoice = new Random().Next(0, 3);
-		static string[] AccountNames = { "Иван Петров", "Мария Сидорова", "Алексей Козлов" };
-		static decimal[] Balances = { 15000m, 8500m, 32000m };
+		static string[] AccountNames = ["Иван Петров", "Мария Сидорова", "Алексей Козлов"];
+		static decimal[] Balances = [15000m, 8500m, 32000m];
 		static string[] History = new string[256];
+		static bool AdminPanelCanShow = true;
 
-		// Переменные методов
-		static int ExitConfirm = -1;			// Main
-		static decimal CashSum;					// GetCash
-		static decimal TopUpSum;				// TopUP
-		static int TransferAccount;				// TransferBetweenAccouts
-		static decimal TransferSum;				// TransferBetweenAccouts
-		static bool AdminPanelDisabled;			// AdminPanel
-		static bool AdminPanelCanShow = true;	// AdminPanel
-
-		static void Main(string[] args)
+		static void Main()
 		{
-			// Настройки окна
+			// Настройки окна и обозначение переменных
 			Console.Title = "МОД СБЕРБАНК МНОГО ДЕНЕГ";
 			Console.ForegroundColor = ConsoleColor.White;
+			int ActionChoice = -1;
+			int ExitConfirm = -1;
 
 			// Основной цикл программы
 			while (ActionChoice != 0 && ExitConfirm != 1)
@@ -57,7 +54,6 @@
 				else if (ActionChoice == 4) OperationHistory();
 				else if (ActionChoice == 0)
 				{
-					ExitConfirm = -1;
 					Console.WriteLine("Вы уверены, что хотите выйти?");
 					Console.WriteLine("1 - да");
 					Console.WriteLine("0 - нет");
@@ -99,7 +95,7 @@
 			Console.Write("Введите сумму для снятия (сумма должна быть кратна 100): ");
 
 			// Проверка валидности значения
-			if (!decimal.TryParse(Console.ReadLine(), out CashSum))
+			if (!decimal.TryParse(Console.ReadLine(), out  decimal CashSum))
 			{
 				ErrorShow("Неверный ввод.");
 				return;
@@ -147,6 +143,7 @@
 
 		static void TopUp()
 		{
+			decimal TopUpSum;
 			Console.WriteLine("===== ПОПОЛНЕНИЕ СЧЕТА =====");
 			Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
 			Console.WriteLine();
@@ -191,6 +188,8 @@
 		
 		static void TransferBetweenAccouts()
 		{
+			int TransferAccount;
+            decimal TransferSum;
 			Console.WriteLine("===== ПЕРЕВОД МЕЖДУ СЧЕТАМИ =====");
 			Console.WriteLine($"Баланс: {Balances[AccountChoice]}");
 			Console.WriteLine();
@@ -239,6 +238,7 @@
 				ErrorShow("Недостаточно средств.");
 				return;
 			}
+
 			// Успешный перевод между счетами
 			Balances[AccountChoice] -= TransferSum;
 			Balances[TransferAccount] += TransferSum;
@@ -300,11 +300,12 @@
 
 		static void AdminPanel()
 		{
-			AdminPanelDisabled = true;
+			bool AdminPanelDisabled = true;
 			string AdminPanelLabel = "===== АДМИН-ПАНЕЛЬ =====";
-			ConsoleColor[] Pattern = { ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Blue };
+			ConsoleColor[] Pattern = [ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Blue];
 			int PasswordAttempts = 3;
 			int AdminChoice = -1;
+			string CorrectPasswordHash = "4eb1b555c4a8e71516179ea34a0828272a95944411c4109f51cf7d621ba57044";
 
 			while (AdminPanelDisabled)
 			{
@@ -319,7 +320,14 @@
 				Console.Write("Введите пароль для входа: ");
 				string Password = Console.ReadLine();
 				Console.WriteLine();
-				if (Password == "хуй") AdminPanelDisabled = false;
+
+                SHA256 sha256 = SHA256.Create();
+                byte[] Bytes = Encoding.UTF8.GetBytes(Password);
+                byte[] Hash = sha256.ComputeHash(Bytes);
+                sha256.Dispose();
+                string PasswordHash = BitConverter.ToString(Hash).ToLower().Replace("-", "");
+				
+				if (PasswordHash == CorrectPasswordHash) AdminPanelDisabled = false;
 				else if (Password == "0")
 				{
 					Console.ForegroundColor = ConsoleColor.White;
@@ -361,7 +369,7 @@
 				Console.WriteLine();
 				Console.WriteLine("====================");
 				Console.Write("Ваш выбор: ");
-				int.TryParse(Console.ReadLine(), out AdminChoice);
+				AdminChoice = Convert.ToInt32(Console.ReadLine());
 				Console.Clear();
 				for (int i = 0; i < AdminPanelLabel.Length; i++)
 				{
@@ -374,7 +382,7 @@
 				// Очистка истории операций
 				if (AdminChoice == 1)
 				{
-					int OperationHistory = -1;
+					int OperationHistory;
 					Console.WriteLine("Очистка истории операций:");
 					Console.WriteLine();
 					Console.WriteLine("Вы уверены, что хотите очистить историю операций?");
@@ -383,8 +391,8 @@
 					Console.WriteLine();
 					Console.WriteLine("====================");
 					Console.Write("Ваш выбор: ");
-					int.TryParse(Console.ReadLine(), out OperationHistory);
-					if (OperationHistory == 0) continue;
+                    OperationHistory = Convert.ToInt32(Console.ReadLine());
+                    if (OperationHistory == 0) continue;
 					else
 					{
 						if (History[0] == null)
@@ -424,12 +432,12 @@
 					Console.WriteLine();
 					Console.WriteLine("====================");
 					Console.Write("Ваш выбор: ");
-					int.TryParse(Console.ReadLine(), out BalanceChangeAccount);
-					if (BalanceChangeAccount == 0) continue;
+                    BalanceChangeAccount = Convert.ToInt32(Console.ReadLine());
+                    if (BalanceChangeAccount == 0) continue;
 					Console.WriteLine();
 					BalanceChangeAccount--;
 					Console.Write($"Введите новый баланс для аккаута \"{AccountNames[BalanceChangeAccount]}\": ");
-					int.TryParse(Console.ReadLine(), out NewBalance);
+					NewBalance = Convert.ToInt32(Console.ReadLine());
 					Console.WriteLine();
 					Balances[BalanceChangeAccount] = NewBalance;
 					Console.ForegroundColor = ConsoleColor.Green;

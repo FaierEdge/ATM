@@ -1,0 +1,15 @@
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\net8.0\win-x64\Банкомат.exe
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\net8.0\win-x64\Банкомат.deps.json
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\net8.0\win-x64\Банкомат.runtimeconfig.json
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\net8.0\win-x64\Банкомат.dll
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\net8.0\win-x64\Банкомат.pdb
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.AssemblyInfoInputs.cache
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.AssemblyInfo.cs
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.csproj.CoreCompileInputs.cache
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.sourcelink.json
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.dll
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\refint\Банкомат.dll
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.pdb
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\Банкомат.genruntimeconfig.cache
+C:\Users\Faier_Edge\source\repos\Банкомат\obj\Debug\net8.0\win-x64\ref\Банкомат.dll

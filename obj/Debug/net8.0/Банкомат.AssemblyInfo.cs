@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Банкомат")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc1898c60347666805a5a2fe8fde9ca1e92b090e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0aaea39a19cd72621e6be38ff76524a7f296cb2c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Банкомат")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Банкомат")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

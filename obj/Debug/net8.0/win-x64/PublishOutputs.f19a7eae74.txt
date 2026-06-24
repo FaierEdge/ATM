@@ -1,0 +1,2 @@
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\SelfContained\Банкомат.pdb
+C:\Users\Faier_Edge\source\repos\Банкомат\bin\Debug\SelfContained\Банкомат.exe
