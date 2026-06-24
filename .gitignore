@@ -4,3 +4,4 @@ obj/
 *.sln
 *.tar
 bin/Debug/net8.0/win-x64/
+ChangeList.txt
