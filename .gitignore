@@ -1,5 +1,6 @@
-.vs\
-*.sln
+.vs/
+obj/
 *.csproj
-bin\Debug\net8.0\win-x64\
+*.sln
 *.tar
+bin/Debug/net8.0/win-x64/
