@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using System.Text;
+﻿using System.Text;
 using SHA256 = System.Security.Cryptography.SHA256;
 
 namespace Банкомат
