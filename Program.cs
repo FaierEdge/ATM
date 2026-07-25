@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using SHA256 = System.Security.Cryptography.SHA256;
 
 namespace Банкомат
@@ -11,14 +12,14 @@ namespace Банкомат
 		static decimal[] Balances = [15000m, 8500m, 32000m];
 		static string[] History = new string[256];
 		static bool AdminPanelCanShow = true;
+		static int ActionChoice = -1;
+		static int ExitConfirm = -1;
 
-		static void Main()
+        static void Main()
 		{
-			// Настройки окна и обозначение переменных
+			// Настройки окна
 			Console.Title = "МОД СБЕРБАНК МНОГО ДЕНЕГ";
 			Console.ForegroundColor = ConsoleColor.White;
-			int ActionChoice = -1;
-			int ExitConfirm = -1;
 
 			// Основной цикл программы
 			while (ActionChoice != 0 && ExitConfirm != 1)
@@ -51,22 +52,7 @@ namespace Банкомат
 				else if (ActionChoice == 2) TopUp();
 				else if (ActionChoice == 3) TransferBetweenAccouts();
 				else if (ActionChoice == 4) OperationHistory();
-				else if (ActionChoice == 0)
-				{
-					Console.WriteLine("Вы уверены, что хотите выйти?");
-					Console.WriteLine("1 - да");
-					Console.WriteLine("0 - нет");
-					Console.WriteLine();
-					Console.WriteLine("====================");
-					Console.Write("Ваш выбор: ");
-					if (!int.TryParse(Console.ReadLine(), out ExitConfirm) || ExitConfirm < 0 || ExitConfirm > 1) ErrorShow("Неверный ввод.");
-					else if (ExitConfirm == 1) return;
-					else
-					{
-						ActionChoice = -1;
-						ExitConfirm = -1;
-					}
-				}
+				else if (ActionChoice == 0) Exit();
 				else if (ActionChoice == 1488)
 				{
 					if (AdminPanelCanShow) AdminPanel();
@@ -448,5 +434,22 @@ namespace Банкомат
 			Console.ForegroundColor = ConsoleColor.White;
 			return;
 		}
+
+		static void Exit()
+		{
+            Console.WriteLine("Вы уверены, что хотите выйти?");
+            Console.WriteLine("1 - да");
+            Console.WriteLine("0 - нет");
+            Console.WriteLine();
+            Console.WriteLine("====================");
+            Console.Write("Ваш выбор: ");
+            if (!int.TryParse(Console.ReadLine(), out ExitConfirm) || ExitConfirm < 0 || ExitConfirm > 1) ErrorShow("Неверный ввод.");
+            else if (ExitConfirm == 1) return;
+            else
+            {
+                ActionChoice = -1;
+                ExitConfirm = -1;
+            }
+        }
 	}
 }
