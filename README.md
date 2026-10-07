@@ -1,3 +1,5 @@
+Just silly task for self-credit for mathematical modeling.
+
 The executable file is located on the path bin\Release\SelfContained\Банкомат.exe
 
 If for some reason it doesn't start, you should install .NET 8.0 Runtime for console apps at the link below:
